@@ -1,0 +1,10 @@
+SUCCESS at getting display mode?:0
+1280,1024,60
+Parameters used:
+----------
+[DURACION]: 75
+----------
+Initializing 800--600
+Driver name (0): opengl
+Driver name (1): software
+Inicio de entrenamiento.

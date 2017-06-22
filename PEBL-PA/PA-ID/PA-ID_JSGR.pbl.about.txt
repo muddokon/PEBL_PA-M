@@ -1,0 +1,21 @@
+PEBL Prueba de Percepción Auditiva (PA): Iguales / diferentes. Una implementacion del paradigma propuesto por Tallal y Percy (1974).
+
+Licencia GNU-GPL versión 3.0: https://www.gnu.org/licenses/gpl.txt
+
+Oprima la tecla ESCAPE para abortar la prueba y guardar los datos hasta el momento.
+Los datos son guardados en el archivo con nombre [numero]_tonos_ID.csv en el directorio de esta prueba.
+
+Autores: Juan Sebastian Gomez Rosas y María Elizabeth Mónica Carlier Torres.
+
+Gráficos por: Carlos David Gómez Rosas.
+
+Nota: Este trabajo fue realizado por Juan Sebastian Gomez Rosas como una tesis de grado de la maestría en Software libre de la Universidad Autónoma de Bucaramanga bajo la dirección de la Dra. Maria Elizabeth Monica Carlier Torres.
+
+Mueller, S. T., & Piper, B. J. (2014). The psychology experiment building language (PEBL) and PEBL test battery. Journal of neuroscience methods,222, 250-259.
+
+Para cambiar los sonidos siga los pasos a continuación:
+
+1. Se utilizan 2 sonidos en formato WAV-PCM de Windows.
+2. La duración para la prueba es ajustada automáticamente.
+3. Nombrarlos bajo.wav y alto.wav respectivamente.
+4. Incluirlos en el directorio de esta prueba.

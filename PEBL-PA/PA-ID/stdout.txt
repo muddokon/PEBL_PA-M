@@ -1,0 +1,32 @@
+SUCCESS at getting display mode?:0
+1280,1024,60
+Parameters used:
+----------
+[DURACION]: 75
+[INTERVALO]: 428
+----------
+Initializing 1360--768
+Driver name (0): opengl
+Driver name (1): software
+Translating escape code
+Translating escape code
+Translating escape code
+Translating escape code
+Translating escape code
+Translating escape code
+Translating escape code
+Translating escape code
+Translating escape code
+Translating escape code
+Translating escape code
+Translating escape code
+Translating escape code
+Translating escape code
+Translating escape code
+Translating escape code
+Translating escape code
+Translating escape code
+Translating escape code
+Translating escape code
+Translating escape code
+Translating escape code

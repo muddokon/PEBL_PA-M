@@ -1,0 +1,50 @@
+SUCCESS at getting display mode?:0
+1280,1024,60
+Experimento iniciado.
+Initializing 1360--768
+Driver name (0): opengl
+Driver name (1): software
+Clic en 7
+Uva encontrada!
+Clic en 6
+Naranja encontrada!
+No!
+Clic en 7
+Uva encontrada!
+Clic en 7
+Clic en 2
+Banana encontrada!
+No!
+Clic en 6
+Naranja encontrada!
+Clic en 4
+Manzana encontrada!
+No!
+Clic en 5
+Naranja encontrada!
+Clic en 6
+Naranja encontrada!
+Pareja!
+Clic en 1
+Banana encontrada!
+Clic en 1
+Clic en 1
+Clic en 1
+Clic en 1
+Clic en 1
+Clic en 2
+Banana encontrada!
+Pareja!
+Clic en 8
+Uva encontrada!
+Clic en 8
+Clic en 8
+Clic en 8
+Clic en 7
+Uva encontrada!
+Pareja!
+Clic en 4
+Manzana encontrada!
+Clic en 3
+Manzana encontrada!
+Pareja!

@@ -1,0 +1,676 @@
+## Experimento psicologico con tonos
+## PEBL Prueba de Percepción Auditiva (PA): Iguales / diferentes.
+##
+## Desarrollo por: Juan Sebastian Gomez Rosas
+## Gráficos por: Carlos David Gómez Rosas
+## Apoyo en paradigma y diseño por la Dra. María Elizabeth Mónica Carlier Torres
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define Start(lPar)
+{
+	#Parametros
+	parametros <- [["intervalo",428],
+									["duracion",75]]
+
+	gParams <- CreateParameters(parametros, "parametros.par")
+
+	#Variables
+	duracion <- gParams.duracion
+	intervalo <- gParams.intervalo
+
+	#posiciones
+	alturaFlechas <- 180
+	alturaManos <- 250
+
+	#Ajustes de ventana
+	ventana <- MakeWindow("black")
+	gVideoWidth <- 800
+	gVideoHeight <- 600
+
+	#Crear sonidos
+	sonidoT1 <- LoadSound("bajo.wav")
+	sonidoT2 <- LoadSound("alto.wav")
+
+	#fuentes
+	fontGreen <- MakeFont("com.ttf",1,40,
+                      MakeColor("green"),
+                      MakeColor("black"), 1)
+	fontRed   <- MakeFont("com.ttf",1,40,
+                      MakeColor("red"),
+                      MakeColor("black"), 1)
+  fontWhite   <- MakeFont("com.ttf",1,28,
+                      MakeColor("white"),
+                      MakeColor("black"), 1)
+	fontWhite2   <- MakeFont("com.ttf",1,34,
+                      MakeColor("white"),
+                      MakeColor("black"), 1)
+
+
+	flecha1 <- MakeImage("up.png")
+	flecha2 <- MakeImage("down.png")
+
+	mano1 <- MakeImage("mano.png")
+	mano2 <- MakeImage("click.png")
+
+	ayuda <- MakeLabel(" ",fontWhite2)
+	resultado <- MakeLabel(" ",fontWhite)
+	aviso <- MakeLabel("Repetición Número:",fontWhite)
+
+	#[[[[[[[[[[[[[[[[[[[[[[[[[[[[[MENU]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+
+	#Dibujo de instrucciones
+	aviso0 <- MakeLabel("Seleccionar el punto de arranque:",fontWhite)
+	aviso1 <- MakeLabel("Presionar 1:Demostración.",fontWhite)
+	aviso2 <- MakeLabel("Presionar 2:Entrenamiento con retroalimentación.",fontWhite)
+	aviso3 <- MakeLabel("Presionar 3:Entrenamiento sin retroalimentación.",fontWhite)
+	aviso4 <- MakeLabel("Presionar 4:Prueba.",fontWhite)
+
+	AddObject(aviso0,ventana)
+	Move(aviso0,gVideoWidth/2,100)
+	AddObject(aviso1,ventana)
+	Move(aviso1,gVideoWidth/2,200)
+	AddObject(aviso2,ventana)
+	Move(aviso2,gVideoWidth/2,300)
+	AddObject(aviso3,ventana)
+	Move(aviso3,gVideoWidth/2,400)
+	AddObject(aviso4,ventana)
+	Move(aviso4,gVideoWidth/2,500)
+
+	Draw()
+
+	ans <- WaitForListKeyPress(["1","2","3","4","5"])
+
+	RemoveObject(aviso0,ventana)
+	RemoveObject(aviso1,ventana)
+	RemoveObject(aviso2,ventana)
+	RemoveObject(aviso3,ventana)
+	RemoveObject(aviso4,ventana)
+
+	Draw()
+
+	#[[[[[[[[[[[[[[[[[[[[[[[[[[[[[ETAPA 1]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+
+	if(ans=="1"){
+		#Crear un archivo de registro para el paciente
+		gFileOut <- FileOpenAppend(gSubNum+"_tonos_ID_demo.csv")
+		FilePrint(gFileOut,"repeticion,intervalo,correcto,tiempo")
+		gSleepEasy <- 1
+
+		#Dibujo de instrucciones
+		label <- EasyLabel("Demostración.", gVideoWidth/2, 40, ventana, 18)
+		label2 <- EasyLabel("Escucha los tonos y oprime una tecla.", gVideoWidth/2, 80, ventana, 18)
+		label3 <- EasyLabel("Presiona cualquier tecla para comenzar.", gVideoWidth/2, 430, ventana, 18)
+	  labelB <- EasyLabel("Iguales", gVideoWidth/3, alturaFlechas+80, ventana, 18)
+		labelA <- EasyLabel("Diferentes", 2*gVideoWidth/3, alturaFlechas+80, ventana, 18)
+
+		AddObject(flecha1,ventana)
+		AddObject(flecha2,ventana)
+
+		Move(flecha1,gVideoWidth/3,alturaFlechas)
+		Move(flecha2,2*gVideoWidth/3,alturaFlechas)
+
+		#Label para ver resultados en pantalla
+		AddObject(aviso,ventana)
+		Move(aviso,gVideoWidth/2,500)
+
+		#Label de resultados
+		AddObject(resultado,ventana)
+		Move(resultado,gVideoWidth/2,560)
+
+		#Label de ayuda
+		AddObject(ayuda,ventana)
+		Move(ayuda,gVideoWidth/2,320)
+
+		Draw()
+
+		Print("Inicio de entrenamiento.")
+
+		WaitForAnyKeyPress()
+
+		#Serie de 4 estimulos aleatorios
+		estimulo <- Shuffle([1,2,3,4])
+
+	    #Probar 4 veces e imprimir el resultado en pantalla
+	    c <- 1
+	    score <- 0
+	    loop(i,estimulo)
+	      {
+	      SetText(aviso,"Repetición Número: " + c)
+	    	SetFont(resultado, fontGreen)
+	    	SetText(resultado," ")
+	    	Draw()
+				if(i==1){
+					SetText(ayuda,"Iguales")
+					Draw()
+					PlayForeground(sonidoT1)
+					Wait(duracion)
+					Stop(sonidoT1)
+					Wait(intervalo)
+					PlayForeground(sonidoT1)
+					Wait(duracion)
+					Stop(sonidoT1)
+
+					AddObject(mano2,ventana)
+					Move(mano2,gVideoWidth/3,alturaManos)
+					Draw()
+					Wait(1000)
+					RemoveObject(mano2,ventana)
+					Draw()
+				} elseif(i==2){
+					SetText(ayuda,"Iguales")
+					Draw()
+					PlayForeground(sonidoT2)
+					Wait(duracion)
+					Stop(sonidoT1)
+					Wait(intervalo)
+					PlayForeground(sonidoT2)
+					Wait(duracion)
+					Stop(sonidoT1)
+
+					AddObject(mano2,ventana)
+					Move(mano2,gVideoWidth/3,alturaManos)
+					Draw()
+					Wait(1000)
+					RemoveObject(mano2,ventana)
+					Draw()
+				}elseif(i==3){
+					SetText(ayuda,"Diferentes")
+					Draw()
+					PlayForeground(sonidoT1)
+					Wait(duracion)
+					Stop(sonidoT1)
+					Wait(intervalo)
+					PlayForeground(sonidoT2)
+					Wait(duracion)
+					Stop(sonidoT1)
+
+					AddObject(mano2,ventana)
+					Move(mano2,2*gVideoWidth/3,alturaManos)
+					Draw()
+					Wait(1000)
+					RemoveObject(mano2,ventana)
+					Draw()
+				}elseif(i==4){
+					SetText(ayuda,"Diferentes")
+					Draw()
+					PlayForeground(sonidoT2)
+					Wait(duracion)
+					Stop(sonidoT1)
+					Wait(intervalo)
+					PlayForeground(sonidoT1)
+					Wait(duracion)
+					Stop(sonidoT1)
+
+					AddObject(mano2,ventana)
+					Move(mano2,2*gVideoWidth/3,alturaManos)
+					Draw()
+					Wait(1000)
+					RemoveObject(mano2,ventana)
+					Draw()
+				}
+
+			time1 <- GetTime()
+		 	resp <- WaitForListKeyPress(["<up>","<down>","<esc>"])
+		 	time2 <- GetTime()
+		 	if(i == 1 and resp=="<up>")
+			  {
+			    SetText(resultado,"Correcto")
+			    score <- score + 1
+			    FilePrint(gFileOut,c+","+intervalo+",si,"+(time2-time1))
+			  } elseif(i == 2 and resp=="<up>"){
+			  	SetText(resultado,"Correcto")
+			  	score <- score + 1
+			  	FilePrint(gFileOut,c+","+intervalo+",si,"+(time2-time1))
+			  } elseif(i == 3 and resp=="<down>"){
+			  	SetText(resultado,"Correcto")
+			  	score <- score + 1
+			  	FilePrint(gFileOut,c+","+intervalo+",si,"+(time2-time1))
+			  } elseif(i == 4 and resp=="<down>"){
+			  	SetText(resultado,"Correcto")
+			  	score <- score + 1
+			  	FilePrint(gFileOut,c+","+intervalo+",si,"+(time2-time1))
+			  } elseif(resp=="<esc>"){
+					PopupMessageBox("Experimento abortado. Por favor cierre esta ventana.", ventana)
+					FilePrint(gFileOut,"ABORTADO,ABORTADO,ABORTADO,ABORTADO")
+					break
+				}else{
+			  	SetFont(resultado, fontRed)
+			  	SetText(resultado,"Incorrecto")
+			  	FilePrint(gFileOut,c+","+intervalo+",no,"+(time2-time1))
+	      	}
+			Draw()
+			Wait(1000)
+			c <- c + 1
+		}
+		ans <- "2"
+		PopupMessageBox("Fin de etapa de demostración. Aciertos: " + score + " de 4.", ventana)
+	}
+
+	#[[[[[[[[[[[[[[[[[[[[[[[[[[[[[ETAPA 2]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+
+	if(ans=="2"){
+		#Crear un archivo de registro para el paciente
+		gFileOut <- FileOpenAppend(gSubNum+"_tonos_ID_retro.csv")
+		FilePrint(gFileOut,"repeticion,intervalo,correcto,tiempo")
+		gSleepEasy <- 1
+
+		#Dibujo de instrucciones
+		label <- EasyLabel("Entrenamiento con retroalimentación.", gVideoWidth/2, 40, ventana, 18)
+		label2 <- EasyLabel("Oprime la tecla correspondiente.", gVideoWidth/2, 80, ventana, 18)
+		label3 <- EasyLabel("Presiona cualquier tecla para comenzar.", gVideoWidth/2, 450, ventana, 18)
+		labelB <- EasyLabel("Iguales", gVideoWidth/3, alturaFlechas+80, ventana, 18)
+		labelA <- EasyLabel("Diferentes", 2*gVideoWidth/3, alturaFlechas+80, ventana, 18)
+
+		AddObject(flecha1,ventana)
+		AddObject(flecha2,ventana)
+
+		Move(flecha1,gVideoWidth/3,alturaFlechas)
+		Move(flecha2,2*gVideoWidth/3,alturaFlechas)
+
+		#Label para ver resultados en pantalla
+		aviso <- MakeLabel("Repetición Número:",fontWhite)
+		AddObject(aviso,ventana)
+		Move(aviso,gVideoWidth/2,500)
+
+		#Label de resultados
+		resultado <- MakeLabel(" ",fontWhite)
+		AddObject(resultado,ventana)
+		Move(resultado,gVideoWidth/2,560)
+
+		#Label de ayuda
+		ayuda <- MakeLabel(" ",fontWhite2)
+		AddObject(ayuda,ventana)
+		Move(ayuda,gVideoWidth/2,320)
+
+		SetText(ayuda,"Con ayuda")
+
+		#Serie de 8 estimulos aleatorios
+		estimulo <- Shuffle([1,1,2,2,3,3,4,4])
+
+		Draw()
+
+		WaitForAnyKeyPress()
+
+	    #Probar 8 veces e imprimir el resultado en pantalla
+	    c <- 1
+	    score <- 0
+	    loop(i,estimulo)
+	      {
+	      SetText(aviso,"Repetición Número: " + c)
+	    	SetFont(resultado, fontGreen)
+	    	SetText(resultado," ")
+	    	Draw()
+				if(i==1){
+					PlayForeground(sonidoT1)
+					Wait(duracion)
+					Stop(sonidoT1)
+					Wait(intervalo)
+					PlayForeground(sonidoT1)
+					Wait(duracion)
+					Stop(sonidoT1)
+				} elseif(i==2){
+					PlayForeground(sonidoT2)
+					Wait(duracion)
+					Stop(sonidoT1)
+					Wait(intervalo)
+					PlayForeground(sonidoT2)
+					Wait(duracion)
+					Stop(sonidoT1)
+				}elseif(i==3){
+					PlayForeground(sonidoT1)
+					Wait(duracion)
+					Stop(sonidoT1)
+					Wait(intervalo)
+					PlayForeground(sonidoT2)
+					Wait(duracion)
+					Stop(sonidoT1)
+				}elseif(i==4){
+					PlayForeground(sonidoT2)
+					Wait(duracion)
+					Stop(sonidoT1)
+					Wait(intervalo)
+					PlayForeground(sonidoT1)
+					Wait(duracion)
+					Stop(sonidoT1)
+				}
+	    	Draw()
+
+			time1 <- GetTime()
+		 	resp <- WaitForListKeyPress(["<up>","<down>","<esc>"])
+		 	time2 <- GetTime()
+			if(i == 1 and resp=="<up>")
+			  {
+			    SetText(resultado,"Correcto")
+			    score <- score + 1
+			    FilePrint(gFileOut,c+","+intervalo+",si,"+(time2-time1))
+					AddObject(mano2,ventana)
+					Move(mano2,gVideoWidth/3,alturaManos)
+					Draw()
+					Wait(1000)
+					RemoveObject(mano2,ventana)
+					Draw()
+			  } elseif(i == 2 and resp=="<up>"){
+			  	SetText(resultado,"Correcto")
+			  	score <- score + 1
+			  	FilePrint(gFileOut,c+","+intervalo+",si,"+(time2-time1))
+					AddObject(mano2,ventana)
+					Move(mano2,gVideoWidth/3,alturaManos)
+					Draw()
+					Wait(1000)
+					RemoveObject(mano2,ventana)
+					Draw()
+			  } elseif(i == 3 and resp=="<down>"){
+			  	SetText(resultado,"Correcto")
+			  	score <- score + 1
+			  	FilePrint(gFileOut,c+","+intervalo+",si,"+(time2-time1))
+					AddObject(mano2,ventana)
+					Move(mano2,2*gVideoWidth/3,alturaManos)
+					Draw()
+					Wait(1000)
+					RemoveObject(mano2,ventana)
+					Draw()
+			  } elseif(i == 4 and resp=="<down>"){
+			  	SetText(resultado,"Correcto")
+			  	score <- score + 1
+			  	FilePrint(gFileOut,c+","+intervalo+",si,"+(time2-time1))
+					AddObject(mano2,ventana)
+					Move(mano2,2*gVideoWidth/3,alturaManos)
+					Draw()
+					Wait(1000)
+					RemoveObject(mano2,ventana)
+					Draw()
+			  } elseif(resp=="<esc>"){
+					PopupMessageBox("Experimento abortado. Por favor cierre esta ventana.", ventana)
+					FilePrint(gFileOut,"ABORTADO,ABORTADO,ABORTADO,ABORTADO")
+					break
+				} elseif(i == 1 and resp!="<up>")
+				  {
+					SetFont(resultado, fontRed)
+					SetText(resultado,"Incorrecto")
+				    FilePrint(gFileOut,c+","+intervalo+",no,"+(time2-time1))
+						AddObject(mano2,ventana)
+						Move(mano2,gVideoWidth/3,alturaManos)
+						Draw()
+						Wait(1000)
+						RemoveObject(mano2,ventana)
+						Draw()
+				  } elseif(i == 2 and resp!="<up>"){
+					SetFont(resultado, fontRed)
+					SetText(resultado,"Incorrecto")
+				  	FilePrint(gFileOut,c+","+intervalo+",no,"+(time2-time1))
+						AddObject(mano2,ventana)
+						Move(mano2,gVideoWidth/3,alturaManos)
+						Draw()
+						Wait(1000)
+						RemoveObject(mano2,ventana)
+						Draw()
+				  } elseif(i == 3 and resp!="<down>"){
+					SetFont(resultado, fontRed)
+					SetText(resultado,"Incorrecto")
+				  	FilePrint(gFileOut,c+","+intervalo+",no,"+(time2-time1))
+						AddObject(mano2,ventana)
+						Move(mano2,2*gVideoWidth/3,alturaManos)
+						Draw()
+						Wait(1000)
+						RemoveObject(mano2,ventana)
+						Draw()
+				  } elseif(i == 4 and resp!="<down>"){
+					SetFont(resultado, fontRed)
+					SetText(resultado,"Incorrecto")
+				  	FilePrint(gFileOut,c+","+intervalo+",no,"+(time2-time1))
+						AddObject(mano2,ventana)
+						Move(mano2,2*gVideoWidth/3,alturaManos)
+						Draw()
+						Wait(1000)
+						RemoveObject(mano2,ventana)
+						Draw()
+					}
+			Draw()
+			Wait(1000)
+			c <- c + 1
+		}
+		PopupMessageBox("Fin de etapa con retroalimentación. Aciertos: " + score + " de 8.", ventana)
+		ans <- "3"
+	}
+
+	#[[[[[[[[[[[[[[[[[[[[[[[[[[[[[ETAPA 3]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+
+	if(ans=="3"){
+		#Crear un archivo de registro para el paciente
+		gFileOut <- FileOpenAppend(gSubNum+"_tonos_ID_noret.csv")
+		FilePrint(gFileOut,"repeticion,intervalo,correcto,tiempo")
+		gSleepEasy <- 1
+
+
+		label <- EasyLabel("Entrenamiento sin retroalimentación.", gVideoWidth/2, 40, ventana, 18)
+		label3 <- EasyLabel("Presiona cualquier tecla para comenzar.", gVideoWidth/2, 450, ventana, 18)
+		labelB <- EasyLabel("Iguales", gVideoWidth/3, alturaFlechas+80, ventana, 18)
+		labelA <- EasyLabel("Diferentes", 2*gVideoWidth/3, alturaFlechas+80, ventana, 18)
+
+		#Label para ver resultados en pantalla
+		aviso <- MakeLabel("Repetición Número:",fontWhite)
+		AddObject(aviso,ventana)
+		Move(aviso,gVideoWidth/2,500)
+
+		#Label de resultados
+		resultado <- MakeLabel(" ",fontWhite)
+		AddObject(resultado,ventana)
+		Move(resultado,gVideoWidth/2,560)
+
+		#Label de ayuda
+		ayuda <- MakeLabel(" ",fontWhite2)
+		AddObject(ayuda,ventana)
+		Move(ayuda,gVideoWidth/2,320)
+		SetText(ayuda,"Sin ayuda")
+
+		AddObject(flecha1,ventana)
+		AddObject(flecha2,ventana)
+
+		Move(flecha1,gVideoWidth/3,alturaFlechas)
+		Move(flecha2,2*gVideoWidth/3,alturaFlechas)
+
+		Draw()
+
+		estimulo <- Shuffle([1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4,4,4])
+		WaitForAnyKeyPress()
+
+		#Probar 24 veces e imprimir el resultado en pantalla
+		c <- 1
+			score <- 0
+			loop(i,estimulo)
+				{
+					SetText(aviso,"Repetición Número: " + c)
+					SetText(resultado," ")
+					Draw()
+					if(i==1){
+						PlayForeground(sonidoT1)
+						Wait(duracion)
+						Stop(sonidoT1)
+						Wait(intervalo)
+						PlayForeground(sonidoT1)
+						Wait(duracion)
+						Stop(sonidoT1)
+					} elseif(i==2){
+						PlayForeground(sonidoT2)
+						Wait(duracion)
+						Stop(sonidoT1)
+						Wait(intervalo)
+						PlayForeground(sonidoT2)
+						Wait(duracion)
+						Stop(sonidoT1)
+					}elseif(i==3){
+						PlayForeground(sonidoT1)
+						Wait(duracion)
+						Stop(sonidoT1)
+						Wait(intervalo)
+						PlayForeground(sonidoT2)
+						Wait(duracion)
+						Stop(sonidoT1)
+					}elseif(i==4){
+						PlayForeground(sonidoT2)
+						Wait(duracion)
+						Stop(sonidoT1)
+						Wait(intervalo)
+						PlayForeground(sonidoT1)
+						Wait(duracion)
+						Stop(sonidoT1)
+					}
+					Draw()
+
+			time1 <- GetTime()
+			resp <- WaitForListKeyPress(["<up>","<down>","<esc>"])
+			time2 <- GetTime()
+			if(i == 1 and resp=="<up>")
+			  {
+			    score <- score + 1
+			    FilePrint(gFileOut,c+","+intervalo+",si,"+(time2-time1))
+			  } elseif(i == 2 and resp=="<up>"){
+			  	score <- score + 1
+			  	FilePrint(gFileOut,c+","+intervalo+",si,"+(time2-time1))
+			  } elseif(i == 3 and resp=="<down>"){
+			  	score <- score + 1
+			  	FilePrint(gFileOut,c+","+intervalo+",si,"+(time2-time1))
+			  } elseif(i == 4 and resp=="<down>"){
+			  	score <- score + 1
+			  	FilePrint(gFileOut,c+","+intervalo+",si,"+(time2-time1))
+			  }elseif(resp=="<esc>"){
+					PopupMessageBox("Experimento abortado. Por favor cierre esta ventana.", ventana)
+					FilePrint(gFileOut,"ABORTADO,ABORTADO,ABORTADO,ABORTADO")
+					break
+				}else{
+				  FilePrint(gFileOut,c+","+intervalo+",no,"+(time2-time1))
+				}
+			Draw()
+			Wait(1000)
+			c <- c + 1
+		}
+		PopupMessageBox("Fin de entrenamiento. Aciertos: " + score + " de 24.", ventana)
+		ans <- "4"
+	}
+	#[[[[[[[[[[[[[[[[[[[[[[[[[[[[[ETAPA 4]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+
+	if(ans=="4"){
+		#Crear un archivo de registro para el paciente
+		gFileOut <- FileOpenAppend(gSubNum+"_tonos_ID_prueba.csv")
+		FilePrint(gFileOut,"repeticion,intervalo,correcto,tiempo")
+		gSleepEasy <- 1
+
+		label <- EasyLabel("Pares de tonos por Iguales/Diferentes. Prueba.", gVideoWidth/2, 40, ventana, 18)
+		label3 <- EasyLabel("Presiona cualquier tecla para comenzar.", gVideoWidth/2, 450, ventana, 18)
+		labelB <- EasyLabel("Iguales", gVideoWidth/3, alturaFlechas+80, ventana, 18)
+		labelA <- EasyLabel("Diferentes", 2*gVideoWidth/3, alturaFlechas+80, ventana, 18)
+
+		#Label para ver resultados en pantalla
+		aviso <- MakeLabel("Repetición Número:",fontWhite)
+		AddObject(aviso,ventana)
+		Move(aviso,gVideoWidth/2,500)
+
+		#Label de resultados
+		resultado <- MakeLabel(" ",fontWhite)
+		AddObject(resultado,ventana)
+		Move(resultado,gVideoWidth/2,560)
+
+		#Label de ayuda
+		ayuda <- MakeLabel(" ",fontWhite2)
+		AddObject(ayuda,ventana)
+		Move(ayuda,gVideoWidth/2,320)
+		SetText(ayuda,"PRUEBA")
+
+		AddObject(flecha1,ventana)
+		AddObject(flecha2,ventana)
+
+		Move(flecha1,gVideoWidth/3,alturaFlechas)
+		Move(flecha2,2*gVideoWidth/3,alturaFlechas)
+
+		Draw()
+
+		estimulo <- Shuffle([1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4])
+		intervalo2 <- [8,15,30,60,150,305,947,1466]
+		WaitForAnyKeyPress()
+
+		#Probar 48 veces e imprimir el resultado en pantalla
+		c <- 1
+			score <- 0
+			loop(i,estimulo)
+				{
+					SetText(aviso,"Repetición Número: " + c)
+					SetText(resultado," ")
+					Draw()
+					aleatorio <- Sample(intervalo2)
+					if(i==1){
+						PlayForeground(sonidoT1)
+						Wait(duracion)
+						Stop(sonidoT1)
+						Wait(aleatorio)
+						PlayForeground(sonidoT1)
+						Wait(duracion)
+						Stop(sonidoT1)
+					} elseif(i==2){
+						PlayForeground(sonidoT2)
+						Wait(duracion)
+						Stop(sonidoT1)
+						Wait(aleatorio)
+						PlayForeground(sonidoT2)
+						Wait(duracion)
+						Stop(sonidoT1)
+					}elseif(i==3){
+						PlayForeground(sonidoT1)
+						Wait(duracion)
+						Stop(sonidoT1)
+						Wait(aleatorio)
+						PlayForeground(sonidoT2)
+						Wait(duracion)
+						Stop(sonidoT1)
+					}elseif(i==4){
+						PlayForeground(sonidoT2)
+						Wait(duracion)
+						Stop(sonidoT1)
+						Wait(aleatorio)
+						PlayForeground(sonidoT1)
+						Wait(duracion)
+						Stop(sonidoT1)
+					}
+					Draw()
+
+			time1 <- GetTime()
+			resp <- WaitForListKeyPress(["<up>","<down>","<esc>"])
+			time2 <- GetTime()
+			if(i == 1 and resp=="<up>")
+			  {
+			    score <- score + 1
+			    FilePrint(gFileOut,c+","+aleatorio+",si,"+(time2-time1))
+			  } elseif(i == 2 and resp=="<up>"){
+			  	score <- score + 1
+			  	FilePrint(gFileOut,c+","+aleatorio+",si,"+(time2-time1))
+			  } elseif(i == 3 and resp=="<down>"){
+			  	score <- score + 1
+			  	FilePrint(gFileOut,c+","+aleatorio+",si,"+(time2-time1))
+			  } elseif(i == 4 and resp=="<down>"){
+			  	score <- score + 1
+			  	FilePrint(gFileOut,c+","+aleatorio+",si,"+(time2-time1))
+			  } elseif(resp=="<esc>"){
+					PopupMessageBox("Experimento abortado. Por favor cierre esta ventana.", ventana)
+					FilePrint(gFileOut,"ABORTADO,ABORTADO,ABORTADO,ABORTADO")
+					break
+				} else{
+				    FilePrint(gFileOut,c+","+aleatorio+",no,"+(time2-time1))
+		  	}
+			Draw()
+			Wait(1000)
+			c <- c + 1
+		}
+		PopupMessageBox("Fin de Prueba. Aciertos: " + score + " de 48.", ventana)
+	}
+}

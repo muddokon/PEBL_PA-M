@@ -1,0 +1,209 @@
+## Experimento psicologico de memorama con tonos
+##
+## DEsarrollo por: Juan Sebastian Gomez Rosas
+## Diseño de experimento por: Dra. Doctora María Elizabeth Mónica Carlier Torres
+## Gráficos por: Carlos David Gómez Rosas
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define Start(lPar)
+{
+
+   Print("Experimento iniciado.")
+
+   #Ajustes de ventana
+   ventana <- MakeWindow("white")
+   gVideoWidth<-1024
+   gVideoHeight<-768
+
+   #Importar imagenes y ubicarlas aleatoriamente
+   resp <- Sequence(1,8,1)
+   dos <- Sequence(1,2,1)
+   estimulos <- Shuffle(resp)
+   objs <- []
+   equis <- 150
+   ye <- 250
+   q <- 1
+   sonido1 <- LoadSound("1.wav")
+   sonido2 <- LoadSound("2.wav")
+   sonido3 <- LoadSound("3.wav")
+   sonido4 <- LoadSound("4.wav")
+   loop(j,estimulos)
+    {
+      objeto <- MakeImage("Carita.png")
+      AddObject(objeto,ventana)
+      Move(objeto,equis,ye)
+      objs <- Append(objs, objeto)
+      equis <- equis + 250
+      if(q == 4){
+        ye <- ye + 250
+        equis <- 150
+      }
+      q <- q + 1
+    }
+   Draw()
+
+   #Dibujo de instrucciones
+   label <- EasyLabel("Experimento de memoria con sonidos.", gVideoWidth/2, 30, ventana, 18)
+   label2 <- EasyLabel("Selecciona una cara, luego selecciona otra.", gVideoWidth/2, 60, ventana, 18)
+   label3 <- EasyLabel("Forma parejas iguales.", gVideoWidth/2, 90, ventana, 18)
+   #Dibujar tarjetas
+   Draw()
+
+   #Crear un archivo de registro para el paciente
+   gFileOut <- FileOpenAppend(gSubNum+"_mem_T.csv")
+   FilePrint(gFileOut,"participante,intento,acierto")
+   gSleepEasy <- 1
+
+   #Probar a hacer parejas
+   score <- 0
+   intentos <- 0
+   acierto <- "NO"
+   temps <- []
+   parejas <- []
+   anterior <- 0
+   eliminar <- 0
+
+   while(score < 4){
+     click <- WaitForClickOnTarget(objs,estimulos)
+     Print("Clic en " + click)
+     if((click == 1 or click == 2) and anterior != click){
+       Print("Banana encontrada!")
+       nuevo <- MakeImage("Oyendo.png")
+       Draw()
+       PlayBackground(sonido1)
+       Wait(500)
+       Stop(sonido1)
+       if(anterior == 0){
+        anterior <- click
+        temps <- Append(temps, nuevo)
+        parejas <- Append(parejas, nuevo)
+       } elseif(anterior == 1 or anterior == 2){
+       Print("Pareja!")
+        score <- score + 1
+        anterior <- 0
+        parejas <- Append(parejas, nuevo)
+        temps <- []
+        intentos <- intentos + 1
+        acierto <- "SI"
+       } else{
+      temps <- Append(temps, nuevo)
+       Print("No!")
+        eliminar <- 1
+       }
+      }elseif((click==3 or click==4) and anterior != click){
+        Print("Manzana encontrada!")
+        nuevo <- MakeImage("Oyendo.png")
+        Draw()
+        PlayBackground(sonido2)
+        Wait(500)
+        Stop(sonido2)
+        if(anterior == 0){
+         anterior <- click
+          temps <- Append(temps, nuevo)
+          parejas <- Append(parejas, nuevo)
+        } elseif(anterior == 3 or anterior == 4){
+        Print("Pareja!")
+         score <- score + 1
+         anterior <- 0
+         parejas <- Append(parejas, nuevo)
+         temps <- []
+         intentos <- intentos + 1
+         acierto <- "SI"
+        } else{
+        temps <- Append(temps, nuevo)
+        Print("No!")
+         eliminar <- 1
+        }
+      }elseif((click==5 or click==6) and anterior != click){
+       Print("Naranja encontrada!")
+       nuevo <- MakeImage("Oyendo.png")
+       Draw()
+       PlayBackground(sonido3)
+       Wait(500)
+       Stop(sonido3)
+       if(anterior == 0){
+        anterior <- click
+        temps <- Append(temps, nuevo)
+         parejas <- Append(parejas, nuevo)
+       } elseif(anterior == 5 or anterior == 6){
+       Print("Pareja!")
+        score <- score + 1
+        anterior <- 0
+        parejas <- Append(parejas, nuevo)
+        temps <- []
+        intentos <- intentos + 1
+        acierto <- "SI"
+       } else{
+        temps <- Append(temps, nuevo)
+       Print("No!")
+        eliminar <- 1
+       }
+      }elseif((click==7 or click==8) and anterior != click){
+        Print("Uva encontrada!")
+        nuevo <- MakeImage("Oyendo.png")
+        Draw()
+        PlayBackground(sonido4)
+        Wait(500)
+        Stop(sonido4)
+        if(anterior == 0){
+         anterior <- click
+          temps <- Append(temps, nuevo)
+          parejas <- Append(parejas, nuevo)
+        } elseif(anterior == 7 or anterior == 8){
+        Print("Pareja!")
+         score <- score + 1
+         anterior <- 0
+         parejas <- Append(parejas, nuevo)
+         temps <- []
+         intentos <- intentos + 1
+         acierto <- "SI"
+        } else{
+        Print("No!")
+         eliminar <- 1
+          temps <- Append(temps, nuevo)
+        }
+      }
+     c <- 0
+     loop(k,estimulos){
+      #Print(k)
+      c <- c + 1
+       if(k == click){
+         victima <- Nth(objs,c)
+       }
+     }
+       AddObject(nuevo,ventana)
+       Move(nuevo,victima.X,victima.Y)
+       Draw()
+
+       if(eliminar == 1){
+        eliminar <- 0
+        anterior <- 0
+        intentos <- intentos + 1
+        acierto <- "NO"
+        Wait(1000)
+         loop(s,dos){
+          muere <- Nth(temps,s)
+          RemoveObject(muere,ventana)
+         }
+         Draw()
+         temps <- []
+       }
+
+     FilePrint(gFileOut,gSubNum+","+intentos+","+acierto)
+   }
+   Wait(2000)
+    PopupMessageBox("Hubo " + score + " aciertos en un total de " + intentos + " intentos. Por favor cierre la ventana.", ventana)
+    WaitForAnyKeyPress()
+}
